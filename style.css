@@ -208,12 +208,14 @@ button { font-family: inherit; cursor: pointer; }
 .sp-body .blank.filled { color: var(--primary-dark); }
 .sp-input { width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--border); border-radius: 12px; margin-top: 10px; }
 .sp-input:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+.sp-input.ok { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); }
+.sp-input.bad { border-color: var(--red); background: #fdecec; color: var(--red); }
 .sp-hintbtn { background: none; border: none; color: var(--primary); font-weight: 700; font-size: 14px; padding: 6px 0; }
 .sp-stats { display: flex; gap: 8px; margin-top: 12px; }
 .sp-stat { flex: 1; text-align: center; background: var(--bg); border-radius: 12px; padding: 10px 4px; }
 .sp-stat b { display: block; font-size: 18px; }
 .sp-stat.ok b { color: var(--primary); } .sp-stat.bad b { color: var(--red); }
-.sp-answer { margin-top: 8px; font-size: 14px; }
+.sp-answer { display: inline-block; margin-top: 8px; padding: 3px 10px; font-size: 13px; border-radius: 8px; background: var(--primary-soft); color: var(--primary-dark); font-weight: 700; }
 .sp-notes { width: 100%; min-height: 70px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; font-family: inherit; font-size: 14px; margin-top: 8px; }
 
 /* ---------------- 复习 / 重点 ---------------- */
@@ -235,8 +237,17 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border); background: var(--card); border-radius: 12px;
   padding: 14px; font-size: 15px; text-align: left; color: var(--text);
 }
-.opt.correct { border-color: var(--primary); background: var(--primary-soft); }
-.opt.wrong { border-color: var(--red); background: #fdecec; }
+/* 多选：选中态（提交前） */
+.opt.sel {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+.opt.sel::before { content: "✓ "; font-weight: 800; }
+/* 提交后：正确项高亮（JS 用 .right，原 .correct 类名不匹配，统一为 right） */
+.opt.right { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); }
+.opt.wrong { border-color: var(--red); background: #fdecec; color: var(--red); }
 .opt:active { transform: scale(.99); }
 .quiz-fb { margin: 10px 0; padding: 12px; border-radius: 12px; font-size: 14px; }
 .quiz-fb.good { background: var(--primary-soft); color: var(--primary-dark); }

@@ -184,8 +184,8 @@ function comp(day) {
   if (!S.completion[day]) S.completion[day] = { flash: false, article: false, spelling: false };
   return S.completion[day];
 }
-const SOURCE_LABEL = { flash: "背单词", manual: "手动收藏", "review-wrong": "复习答错", article: "文章收藏" };
-const SOURCE_TAG = { flash: "blue", manual: "amber", "review-wrong": "red", article: "blue" };
+const SOURCE_LABEL = { flash: "背单词", manual: "手动收藏", "review-wrong": "复习答错", article: "文章收藏", spell: "拼写练习" };
+const SOURCE_TAG = { flash: "blue", manual: "amber", "review-wrong": "red", article: "blue", spell: "amber" };
 
 /* ---------------- 路由 ---------------- */
 let page = "home";
@@ -502,10 +502,14 @@ function renderSpell() {
         bi++;
         const val = st.vals[id] || "";
         let cls = "", extra = "";
+        const tv = val.trim().toLowerCase();
+        const tOk = tv !== "" && tv === tok.toLowerCase();
         if (st.checked) {
-          const ok = val.trim().toLowerCase() === tok.toLowerCase();
-          cls = ok ? "ok" : "bad";
-          if (!ok) extra = '<span class="sp-answer">' + esc(tok) + '</span>';
+          cls = tOk ? "ok" : "bad";
+          if (!tOk) extra = '<span class="sp-answer">正确答案：' + esc(tok) + '</span>';
+        } else if (tv !== "") {
+          // 实时标注：边打字边判断，填错即红、填对即绿
+          cls = tOk ? "ok" : "bad";
         }
         return '<input class="sp-input ' + cls + '" data-id="' + id + '" value="' + esc(val) + '" ' +
           'style="width:' + Math.max(tok.length * 11 + 18, 52) + 'px" maxlength="' + (tok.length + 4) + '" ' +
@@ -552,7 +556,16 @@ function renderSpell() {
     '</div>';
 
   pageEl.querySelectorAll(".sp-input").forEach(inp => {
-    inp.addEventListener("input", () => { st.vals[inp.dataset.id] = inp.value; save(); });
+    inp.addEventListener("input", () => {
+      st.vals[inp.dataset.id] = inp.value;
+      const tok = blanked[inp.dataset.id];
+      const v = inp.value.trim().toLowerCase();
+      const ok = v !== "" && v === tok.toLowerCase();
+      // 实时标注：不整体重渲染（避免失焦），只切换当前框的类
+      inp.classList.toggle("ok", ok);
+      inp.classList.toggle("bad", v !== "" && !ok);
+      save();
+    });
   });
   pageEl.querySelectorAll(".sp-hintbtn").forEach(b => {
     b.addEventListener("click", () => {
@@ -575,7 +588,7 @@ function renderSpell() {
       // 拼错的词加入重点复习
       Object.keys(blanked).forEach(id => {
         const v = (st.vals[id] || "").trim().toLowerCase();
-        if (v && v !== blanked[id].toLowerCase()) addToReview(id, "flash");
+        if (v && v !== blanked[id].toLowerCase()) addToReview(id, "spell");
       });
       touchStreak(); save(); render();
       toast("已完成检查，拼错的词已加入重点复习");
